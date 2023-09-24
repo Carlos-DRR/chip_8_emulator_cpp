@@ -46,6 +46,7 @@
         "ranges": "cpp",
         "span": "cpp",
         "stack": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "bitset": "cpp"
     }
 }

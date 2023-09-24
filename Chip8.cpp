@@ -104,7 +104,7 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
         case 0x7000:{
             //Add value NN to register Vx
             uint16_t reg = getOperation(instruction, 0x0F00);
-            reg = reg >> 8;;
+            reg = reg >> 8;
             uint16_t constant = getOperation(instruction, 0x00FF);
             registers[reg] += constant;
             break;
