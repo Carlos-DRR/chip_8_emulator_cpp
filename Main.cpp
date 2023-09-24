@@ -1,8 +1,9 @@
 #include <iostream>
 #include "Chip8.h"
-#include <SDL2/SDL.h>
-#include <stdio.h>
-
+//#include <SDL2/SDL.h>
+//#include <stdio.h>
+#include "Stack.h"
+#include <string>
 #define WINDOW_WIDTH 64
 #define WINDOW_HEIGHT 32
 #define SCALE_FACTOR 20
@@ -10,6 +11,8 @@
 int main(int argc, char *argv[] ){
     std::cout << "Chip 8 Emulator" << std::endl;
     Chip8 *chip = new Chip8();
+    system("pause");
+    /*
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Event event;
     SDL_Window *window = SDL_CreateWindow("Chip 8 Emulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH * SCALE_FACTOR, WINDOW_HEIGHT * SCALE_FACTOR, 0);
@@ -28,5 +31,6 @@ int main(int argc, char *argv[] ){
     SDL_DestroyWindow(window);
     SDL_Quit();
     system("pause");
+    */
     return 0;
 }

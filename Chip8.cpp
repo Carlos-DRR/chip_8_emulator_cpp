@@ -5,6 +5,7 @@ Chip8::Chip8(){
     //programs are written after 0x1FF
     //so program counter starts at 0x200 (512)
     pc = 0x0200;
+    stack = new Stack();
     initializeFontSprites();
 }
 

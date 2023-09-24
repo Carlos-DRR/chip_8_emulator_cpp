@@ -1,6 +1,6 @@
 #ifndef CHIP8_H
 #define CHIP8_H
-
+#include "Stack.h"
 #include <cstdint>
 #include <iostream>
 
@@ -22,7 +22,7 @@ class Chip8{
         //special registers that gets decremented at a rate of 60Hz until it reaches 0
         uint8_t delayTimer = 0x00;
         uint8_t soundTimer = 0x00;
-        uint16_t stack[16]{};
+        Stack *stack;
 
         //chip8 has a built in font sprite data, and stores it in memory
         //the sprites are numbers from 0 to 16 in hex: 0, 1, 2, .., F
