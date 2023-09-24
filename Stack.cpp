@@ -17,3 +17,7 @@ uint16_t Stack::pop(){
 void Stack::print(){
     List<uint16_t>::print();
 }
+uint16_t Stack::top(){
+    return tail->getInfo();
+}
+

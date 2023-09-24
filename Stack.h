@@ -10,6 +10,7 @@ class Stack : public List<uint16_t>{
         void push(uint16_t info);
         uint16_t pop();
         void print();
+        uint16_t top();
 };
 
 #endif

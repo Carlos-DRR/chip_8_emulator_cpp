@@ -5,7 +5,7 @@
 template <class T>
 
 class List{
-    private:
+    protected:
         Node<T> *head;
         Node<T> *tail;
         int size;

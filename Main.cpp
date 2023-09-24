@@ -10,7 +10,10 @@
 
 int main(int argc, char *argv[] ){
     std::cout << "Chip 8 Emulator" << std::endl;
+    
     Chip8 *chip = new Chip8();
+    chip->run();
+    
     system("pause");
     /*
     SDL_Init(SDL_INIT_VIDEO);

@@ -7,7 +7,7 @@
 class Chip8{
     private:
         //memory of 4 KB
-        uint8_t ram[0XFFF]{};
+        uint8_t ram[4096]{};
         //program counter = points to the instruction in memory
         uint16_t pc = 0x0000;
         //register "i"
@@ -15,10 +15,7 @@ class Chip8{
         //stack pointer
         uint8_t sp = 0x00;
         //registers
-        uint8_t V0, V1, V2, V3, 
-                V4, V5, V6, V7, 
-                V8, V9, VA, VB,
-                VC, VD, VE, VF = 0x00;
+        uint8_t registers[16]{};
         //special registers that gets decremented at a rate of 60Hz until it reaches 0
         uint8_t delayTimer = 0x00;
         uint8_t soundTimer = 0x00;
@@ -38,6 +35,11 @@ class Chip8{
     public:
         Chip8();
         uint16_t getPc();
+        //returns true if PC must be incremented
+        //as some instructions JUMPS
+        bool decodeAndExecute(uint16_t instruction);
+        void run();
+
 };
 
 #endif

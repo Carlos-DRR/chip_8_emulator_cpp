@@ -5,6 +5,19 @@ Chip8::Chip8(){
     //programs are written after 0x1FF
     //so program counter starts at 0x200 (512)
     pc = 0x0200;
+    //test
+    //set V9 to 170
+    ram[0x0200] = 0x69;
+    ram[0x0201] = 0xAA;
+
+    //jump to address 10
+    ram[0x0202] = 0x12;
+    ram[0x0203] = 0x0A;
+
+    //increment V9 by 5
+    ram[0x020A] = 0x79;
+    ram[0x020B] = 0x05;
+    //
     stack = new Stack();
     initializeFontSprites();
 }
@@ -39,4 +52,114 @@ void Chip8::initializeFontSprites(){
         ram[i] = spriteData[spriteByteIndex];
         spriteByteIndex++;
     }
+}
+
+uint16_t getOperation(uint16_t instruction, uint16_t mask){
+    return instruction & mask;
+}
+
+bool Chip8::decodeAndExecute(uint16_t instruction){
+    //instructions are divided by the first half-byte
+    uint16_t operation = getOperation(instruction, 0xF000);
+    switch(operation){
+        case 0x0000:{
+            uint16_t operation = getOperation(instruction, 0x000F);
+            if(operation == 0x0000){
+                //clear the screen
+            }else{//0x000E  
+                //return from subroutine
+            }
+            break;
+        }
+        case 0x1000:{
+            //Absolute JUMP, example: JUMP $2A8 (0x12A8)
+            //jump to address NNN
+            uint16_t address = getOperation(instruction, 0x0FFF);
+            pc = 0x0000;
+            pc += address;
+            return false;
+            break;
+        }
+        case 0x2000:{
+            //JUMP to a subroutine at address NNN
+            break;
+        }
+        case 0x3000:{
+            break;
+        }
+        case 0x4000:{
+            break;
+        }
+        case 0x5000:{
+            break;
+        }
+        case 0x6000:{
+            //Set value NN to register Vx
+            uint16_t reg = getOperation(instruction, 0x0F00);
+            reg = reg >> 8;
+            uint16_t constant = getOperation(instruction, 0x00FF);
+            registers[reg] = constant;
+            break;
+        }
+        case 0x7000:{
+            //Add value NN to register Vx
+            uint16_t reg = getOperation(instruction, 0x0F00);
+            reg = reg >> 8;;
+            uint16_t constant = getOperation(instruction, 0x00FF);
+            registers[reg] += constant;
+            break;
+        }
+        case 0x8000:{
+            break;
+        }
+        case 0x9000:{
+            break;
+        }
+        case 0xA000:{
+            //Load register "i" with constant value NNN
+            uint16_t value = getOperation(instruction, 0x0FFF);
+            iReg = value;
+            break;
+        }
+        case 0xB000:{
+            break;
+        }
+        case 0xC000:{
+            break;
+        }
+        case 0xD000:{
+            //DRAW sprite Vx, Vy, N = Height;
+            break;
+        }
+        case 0xE000:{
+            break;
+        }
+        case 0xF000:{
+            break;
+        }
+    }
+    return true;
+}
+void Chip8::run(){
+    uint16_t instruction;
+
+    int i = 3;//debug
+    while(i != 0){//debug
+        std::cout << "Current PC value: " << std::hex << pc;
+        std::cout << "\n";
+        //fetch with big endian convention
+        //each instruction is 2 bytes, the first byte is stored most-significant-byte first
+        instruction = ram[pc] << 8;
+        instruction += ram[pc+1];
+        //std::cout<< std::dec << instruction << std::endl; //debug
+        //decode and execute
+
+        bool canIncrementPc = decodeAndExecute(instruction);
+        //some instructions (like JUMPS) don't need to increment PC immediatly after jumping
+        (canIncrementPc == true) ?  pc += 2 : pc += 0;
+        i--;//debug
+        std::cout << "Register 9 content: " << unsigned(registers[9]) << std::endl;
+    }
+
+    std::cout << "Register 9 final content: " << unsigned(registers[9]) << std::endl;
 }
