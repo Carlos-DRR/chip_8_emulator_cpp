@@ -15,7 +15,8 @@ class Display{
         int setPositionInWidthBounds(int yPos);
     public:
         Display();
-        bool * getScreen();
+        void clear();
+        bool *getScreen();
         bool setByteInScreen(uint8_t byte, int xPos, int yPos);
         uint8_t getSreenByte(int xPos, int yPos);
         void print();

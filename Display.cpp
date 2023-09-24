@@ -4,8 +4,16 @@
 Display::Display(){
 
 }
+void Display::clear(){
+    for(int i = 0; i < HEIGHT; i++){
+        for(int j = 0; j < WIDTH; j++){
+            screen[i][j] == false;
+        }
+    }
+}
+
 bool * Display::getScreen(){
-    return *screen;
+    return screen[0];
 }
 
 int Display::setPositionInHeightBounds(int xPos){
@@ -63,53 +71,23 @@ bool Display::setBitsInScreen(uint8_t result, int xPos, int yPos){
 
     return inverted > 0;
 }
-//ASSUMING width and height will not be bigger than 2x width and height
+
 bool Display::setByteInScreen(uint8_t byte, int xPos, int yPos){
     uint8_t byteInScreen;
     bool inverted;
-
-    
-    /*
-    if(xPos <= WIDTH && xPos >= 0 && yPos <= HEIGHT && yPos >= 0){
-        byteInScreen = getSreenByte(xPos, yPos);
-        uint8_t result = byteInScreen ^ byte;
-        inverted = setBitsInScreen(result, xPos, yPos);
-    }
-    
-    if(yPos < 0) yPos = WIDTH + yPos;
-    else if(yPos > WIDTH) yPos = yPos - WIDTH;
-    else if(xPos < 0) xPos = HEIGHT + xPos;
-    else if(xPos > WIDTH) xPos = xPos - HEIGHT;
-    */
     xPos = setPositionInHeightBounds(xPos);
     yPos = setPositionInWidthBounds(yPos);
-    std::cout << "xPos initial: " << xPos;
-    std::cout << "yPos initial: " << yPos;
     byteInScreen = getSreenByte(xPos, yPos);
     uint8_t result = byteInScreen ^ byte;
-    std::cout << "result: ";
-    std::cout << std::bitset<8>(result) << std::endl;
     inverted = setBitsInScreen(result, xPos, yPos);
     return inverted;
 }
 
 
 void Display::print(){
-    /* teste */
-    bool value = true;
-    
-    for(int j = 189; j < 197; j++){
-        std::cout << "value: " << value <<std::endl;
-        
-        screen[setPositionInHeightBounds(93)][setPositionInWidthBounds(j)] = value;
-        value = !value;
-    }
-    
-    /* teste */
-    setByteInScreen(0b11111111, 93, 189);
     for(int i = 0; i < HEIGHT; i++){
         for(int j = 0; j < WIDTH; j++){
-            std::cout << ((screen[i][j] == true) ? 1 : 0) << " ";
+            std::cout << ((screen[i][j] == true) ? '*' : ' ') << " ";
         }
         std::cout << "\n";
     }

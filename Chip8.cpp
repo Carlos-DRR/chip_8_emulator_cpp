@@ -1,25 +1,42 @@
 #include "Chip8.h"
 
+
+
 Chip8::Chip8(){
     //addresses 0x000 to 0x1FF are reserved
     //programs are written after 0x1FF
     //so program counter starts at 0x200 (512)
     pc = 0x0200;
     //test
-    //set V9 to 170
-    ram[0x0200] = 0x69;
-    ram[0x0201] = 0xAA;
+    //sprite data
+    ram[0x0220] = 0xBA;
+    ram[0x0221] = 0x7C;
+    ram[0x0222] = 0xD6;
+    ram[0x0223] = 0xFE;
+    ram[0x0224] = 0x54;
+    ram[0x0225] = 0xAA;
+    //Vx = 10 and Vy = 12
+    ram[0x0200] = 0x62;
+    ram[0x0201] = 0x0A;
+    ram[0x0202] = 0x63;
+    ram[0x0203] = 0x0C;
 
-    //jump to address 10
-    ram[0x0202] = 0x12;
-    ram[0x0203] = 0x0A;
+    //load i with address: 220 
+    ram[0x0204] = 0xA2;
+    ram[0x0205] = 0x20;
 
-    //increment V9 by 5
-    ram[0x020A] = 0x79;
-    ram[0x020B] = 0x05;
-    //
+    //Draw whatever is stored in ram starting from iReg(0x0220) address to iReg + 6 (height);
+    ram[0x0206] = 0xD2;
+    ram[0x0207] = 0x36;
+    
+
+
+
+
     stack = new Stack();
+    display = new Display();
     initializeFontSprites();
+    
 }
 
 uint16_t Chip8::getPc(){
@@ -66,6 +83,7 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             uint16_t operation = getOperation(instruction, 0x000F);
             if(operation == 0x0000){
                 //clear the screen
+                display->clear();
             }else{//0x000E  
                 //return from subroutine
             }
@@ -129,6 +147,21 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
         }
         case 0xD000:{
             //DRAW sprite Vx, Vy, N = Height;
+            //byte posx posy
+            uint16_t iRegStartValue = iReg;
+            uint16_t regX = getOperation(instruction, 0x0F00);
+            regX = regX >> 8;
+            uint16_t regY = getOperation(instruction, 0x00F0);
+            regY = regY >> 4;
+            uint16_t height = getOperation(instruction, 0x000F);
+            int xPos = registers[regX];
+            int yPos = registers[regY];
+            for(int i = 0; i < height; i++){
+                display->setByteInScreen(ram[iRegStartValue], xPos, yPos);
+                xPos += 1;
+                iRegStartValue += 1;
+            }
+            display->print();
             break;
         }
         case 0xE000:{
@@ -143,23 +176,18 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
 void Chip8::run(){
     uint16_t instruction;
 
-    int i = 3;//debug
+    int i = 7;//debug
     while(i != 0){//debug
-        std::cout << "Current PC value: " << std::hex << pc;
-        std::cout << "\n";
+        //std::cout << "Current PC value: " << std::hex << pc;
+        //std::cout << "\n";
         //fetch with big endian convention
         //each instruction is 2 bytes, the first byte is stored most-significant-byte first
         instruction = ram[pc] << 8;
         instruction += ram[pc+1];
-        //std::cout<< std::dec << instruction << std::endl; //debug
         //decode and execute
-
         bool canIncrementPc = decodeAndExecute(instruction);
         //some instructions (like JUMPS) don't need to increment PC immediatly after jumping
         (canIncrementPc == true) ?  pc += 2 : pc += 0;
         i--;//debug
-        std::cout << "Register 9 content: " << unsigned(registers[9]) << std::endl;
     }
-
-    std::cout << "Register 9 final content: " << unsigned(registers[9]) << std::endl;
 }

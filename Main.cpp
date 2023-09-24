@@ -7,14 +7,13 @@
 #define WINDOW_HEIGHT 32
 #define SCALE_FACTOR 20
 
+
 int main(int argc, char *argv[] ){
     std::cout << "Chip 8 Emulator" << std::endl;
-    /*
+    
     Chip8 *chip = new Chip8();
     chip->run();
-    */
-    Display *display = new Display();
-    display->print();
+    
     system("pause");
     /*
     SDL_Init(SDL_INIT_VIDEO);

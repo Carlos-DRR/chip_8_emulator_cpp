@@ -1,6 +1,7 @@
 #ifndef CHIP8_H
 #define CHIP8_H
 #include "Stack.h"
+#include "Display.h"
 #include <cstdint>
 #include <iostream>
 
@@ -21,6 +22,7 @@ class Chip8{
         uint8_t soundTimer = 0x00;
         Stack *stack;
 
+        Display *display;
         //chip8 has a built in font sprite data, and stores it in memory
         //the sprites are numbers from 0 to 16 in hex: 0, 1, 2, .., F
         //each character is represented in 5 bytes
