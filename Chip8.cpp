@@ -108,8 +108,9 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
                 //clear the screen
                 display->clear();
             }else{//0x00EE
-                std::cout << "0x00EE not implemented: " << std::endl;  
                 //return from subroutine
+                uint16_t retAddress = stack->pop();
+                pc = retAddress;
             }
             break;
         }
@@ -124,7 +125,10 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
         }
         case 0x2000:{
             //JUMP to a subroutine at address NNN
-            std::cout << "0x2000 not implemented: " << std::endl; 
+            uint16_t subRoutineAddress = getOperation(instruction, 0x0FFF); 
+            stack->push(pc);
+            pc = subRoutineAddress;
+            return false;
             break;
         }
         case 0x3000:{
