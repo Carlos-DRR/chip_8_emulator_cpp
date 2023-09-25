@@ -2,11 +2,12 @@
 
 
 
-Chip8::Chip8(){
+Chip8::Chip8(std::string programPath){
     //addresses 0x000 to 0x1FF are reserved
     //programs are written after 0x1FF
     //so program counter starts at 0x200 (512)
     pc = 0x0200;
+    /*
     //test
     //sprite data
     ram[0x0220] = 0xBA;
@@ -28,7 +29,7 @@ Chip8::Chip8(){
     //Draw whatever is stored in ram starting from iReg(0x0220) address to iReg + 6 (height);
     ram[0x0206] = 0xD2;
     ram[0x0207] = 0x36;
-    
+    */
 
 
 
@@ -36,11 +37,33 @@ Chip8::Chip8(){
     stack = new Stack();
     display = new Display();
     initializeFontSprites();
-    
+    readProgram(programPath);
 }
 
 uint16_t Chip8::getPc(){
     return unsigned(pc);
+}
+
+void Chip8::readProgram(std::string programPath){
+    std::ifstream fin;
+    fin.open(programPath, std::ios::in | std::ios::binary);
+    uint8_t byteData = 0x00;
+    uint16_t adress = pc;
+
+    if(fin){
+        while(!fin.eof()){
+            if(adress > 4096) break;//error not enough memory
+            fin.read(reinterpret_cast<char*>(&byteData), 1);
+            ram[adress] = byteData;
+            adress++;
+           
+            //std::cout << unsigned(mstSigByte) << std::hex << std::endl;
+            //std::cout << unsigned(lstSigByte) << std::hex << std::endl;
+        }
+        fin.close();
+    }else{
+        std::cout << "Error opening program file in: " << programPath << std::endl;
+    }
 }
 
 void Chip8::initializeFontSprites(){
@@ -81,10 +104,11 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
     switch(operation){
         case 0x0000:{
             uint16_t operation = getOperation(instruction, 0x000F);
-            if(operation == 0x0000){
+            if(operation == 0x0000){//0x00E0
                 //clear the screen
                 display->clear();
-            }else{//0x000E  
+            }else{//0x00EE
+                std::cout << "0x00EE not implemented: " << std::endl;  
                 //return from subroutine
             }
             break;
@@ -100,15 +124,19 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
         }
         case 0x2000:{
             //JUMP to a subroutine at address NNN
+            std::cout << "0x2000 not implemented: " << std::endl; 
             break;
         }
         case 0x3000:{
+            std::cout << "0x3000 not implemented: " << std::endl; 
             break;
         }
         case 0x4000:{
+            std::cout << "0x4000 not implemented: " << std::endl; 
             break;
         }
         case 0x5000:{
+            std::cout << "0x5000 not implemented: " << std::endl; 
             break;
         }
         case 0x6000:{
@@ -128,9 +156,11 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             break;
         }
         case 0x8000:{
+            std::cout << "0x8000 not implemented: " << std::endl; 
             break;
         }
         case 0x9000:{
+            std::cout << "0x9000 not implemented: " << std::endl; 
             break;
         }
         case 0xA000:{
@@ -140,9 +170,11 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             break;
         }
         case 0xB000:{
+            std::cout << "0xB000 not implemented: " << std::endl;
             break;
         }
         case 0xC000:{
+            std::cout << "0xC000 not implemented: " << std::endl;
             break;
         }
         case 0xD000:{
@@ -156,18 +188,25 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             uint16_t height = getOperation(instruction, 0x000F);
             int xPos = registers[regX];
             int yPos = registers[regY];
+            registers[15] = 0;
+
             for(int i = 0; i < height; i++){
-                display->setByteInScreen(ram[iRegStartValue], xPos, yPos);
-                xPos += 1;
+                bool inverted = display->setByteInScreen(ram[iRegStartValue], xPos, yPos);
+                //std::cout << "Collision (bit got inverted):" << inverted << std::endl;
+                if(inverted == true) registers[15] = 1;
+                yPos += 1;
                 iRegStartValue += 1;
             }
+            std::cout << "\n";
             display->print();
             break;
         }
         case 0xE000:{
+            std::cout << "0xE000 not implemented: " << std::endl;
             break;
         }
         case 0xF000:{
+            std::cout << "0xF000 not implemented: " << std::endl;
             break;
         }
     }
@@ -176,8 +215,8 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
 void Chip8::run(){
     uint16_t instruction;
 
-    int i = 7;//debug
-    while(i != 0){//debug
+    //int i = 66;//debug
+    while(1){//debug
         //std::cout << "Current PC value: " << std::hex << pc;
         //std::cout << "\n";
         //fetch with big endian convention
@@ -188,6 +227,6 @@ void Chip8::run(){
         bool canIncrementPc = decodeAndExecute(instruction);
         //some instructions (like JUMPS) don't need to increment PC immediatly after jumping
         (canIncrementPc == true) ?  pc += 2 : pc += 0;
-        i--;//debug
+        //i--;//debug
     }
 }

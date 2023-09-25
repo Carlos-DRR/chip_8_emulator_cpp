@@ -4,7 +4,8 @@
 #include "Display.h"
 #include <cstdint>
 #include <iostream>
-
+#include <string>
+#include <fstream>
 class Chip8{
     private:
         //memory of 4 KB
@@ -34,8 +35,9 @@ class Chip8{
         //11110000
         //the "i" register fetches sprite data
         void initializeFontSprites();
+        void readProgram(std::string programPath);
     public:
-        Chip8();
+        Chip8(std::string path);
         uint16_t getPc();
         //returns true if PC must be incremented
         //as some instructions JUMPS

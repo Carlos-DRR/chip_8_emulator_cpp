@@ -2,19 +2,18 @@
 #include "Chip8.h"
 //#include <SDL2/SDL.h>
 //#include <stdio.h>
-#include "Display.h"
+//#include "Display.h"
 #define WINDOW_WIDTH 64
 #define WINDOW_HEIGHT 32
 #define SCALE_FACTOR 20
 
 
 int main(int argc, char *argv[] ){
-    std::cout << "Chip 8 Emulator" << std::endl;
+    //std::cout << "Chip 8 Emulator" << std::endl;
     
-    Chip8 *chip = new Chip8();
+    Chip8 *chip = new Chip8("C:\\Users\\carlo\\Desktop\\chip_8_emulator\\roms\\ibm.ch8");
     chip->run();
     
-    system("pause");
     /*
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Event event;
@@ -35,5 +34,6 @@ int main(int argc, char *argv[] ){
     SDL_Quit();
     system("pause");
     */
+    system("pause");
     return 0;
 }
