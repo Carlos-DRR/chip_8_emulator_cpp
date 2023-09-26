@@ -11,20 +11,20 @@
 int main(int argc, char *argv[] ){
     //std::cout << "Chip 8 Emulator" << std::endl;
     
-    Chip8 *chip = new Chip8("C:\\Users\\carlo\\Desktop\\chip_8_emulator\\roms\\ibm.ch8");
+    Chip8 *chip = new Chip8("C:\\Users\\carlo\\Desktop\\chip_8_emulator\\roms\\jump_to_subroutine.ch8");
     chip->run();
-    
     /*
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Event event;
     SDL_Window *window = SDL_CreateWindow("Chip 8 Emulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH * SCALE_FACTOR, WINDOW_HEIGHT * SCALE_FACTOR, 0);
     SDL_Renderer *renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
     SDL_MaximizeWindow(window);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_SetRenderDrawColor(renderer, 100, 122, 0, 0);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderDrawPoint(renderer, 400, 300);
     SDL_RenderPresent(renderer);
+    //SDL_RenderSetLogicalSize(renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
     while (1) {
         if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
             break;
@@ -32,8 +32,9 @@ int main(int argc, char *argv[] ){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-    system("pause");
     */
     system("pause");
+    
+    //system("pause");
     return 0;
 }

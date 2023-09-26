@@ -31,9 +31,16 @@ Chip8::Chip8(std::string programPath){
     ram[0x0207] = 0x36;
     */
 
-
-
-
+    //Subroutine stating at 0x0400 that loads 10 to register V0 and adds 15 to it
+    //than it returns
+    
+    ram[0x0400] = 0x60;
+    ram[0x0401] = 0x10;
+    ram[0x0402] = 0x70;
+    ram[0x0403] = 0x15;
+    ram[0x0404] = 0x00;
+    ram[0x0405] = 0xEE;
+    
     stack = new Stack();
     display = new Display();
     initializeFontSprites();
@@ -201,8 +208,8 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
                 yPos += 1;
                 iRegStartValue += 1;
             }
-            std::cout << "\n";
-            display->print();
+            //std::cout << "\n";
+            
             break;
         }
         case 0xE000:{
@@ -219,8 +226,8 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
 void Chip8::run(){
     uint16_t instruction;
 
-    //int i = 66;//debug
-    while(1){//debug
+    int i = 7;//debug
+    while(i != 0){//debug
         //std::cout << "Current PC value: " << std::hex << pc;
         //std::cout << "\n";
         //fetch with big endian convention
@@ -231,6 +238,17 @@ void Chip8::run(){
         bool canIncrementPc = decodeAndExecute(instruction);
         //some instructions (like JUMPS) don't need to increment PC immediatly after jumping
         (canIncrementPc == true) ?  pc += 2 : pc += 0;
-        //i--;//debug
+        i--;//debug
+        //if(i == 0) display->print();
+        if(pc == 0x0204){
+            std::cout << "PC at 0x0204" << std::endl;
+            std::cout << "Value of V0: " << unsigned(registers[0]);
+            std::cout << "\n";
+        } else if(pc == 0x0208){
+            std::cout << "PC at 0x0208 after jumping to subroutine in 0x0400" << std::endl;
+            std::cout << "Value of V0: " << unsigned(registers[0]);
+            std::cout << "\n";
+        }
+        
     }
 }
