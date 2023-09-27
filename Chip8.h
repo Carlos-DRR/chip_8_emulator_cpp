@@ -3,6 +3,7 @@
 #include "Stack.h"
 #include "Display.h"
 #include <cstdint>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <fstream>

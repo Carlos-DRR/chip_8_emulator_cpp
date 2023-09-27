@@ -140,21 +140,25 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
         }
         case 0x3000:{
             //3XNN v[x] == NN ? (skip next instruction: dont skip)
-            uint8_t reg = getOperation(instruction, 0x0F00);
-            uint8_t constant = getOperation(instruction, 0x00FF);
+            uint16_t reg = getOperation(instruction, 0x0F00);
+            reg = reg >> 8;
+            uint16_t constant = getOperation(instruction, 0x00FF);
             if(registers[reg] == constant) pc += 2;
             break;
         }
         case 0x4000:{
             //4XNN v[x] != NN ? (skip next instruction: dont skip)
-            uint8_t reg = getOperation(instruction, 0x0F00);
-            uint8_t constant = getOperation(instruction, 0x00FF);
+            uint16_t reg = getOperation(instruction, 0x0F00);
+            reg = reg >> 8;
+            uint16_t constant = getOperation(instruction, 0x00FF);
             if(registers[reg] != constant) pc += 2;
             break;
         }
         case 0x5000:{
-            uint8_t regX = getOperation(instruction, 0x0F00);
-            uint8_t regY = getOperation(instruction, 0x00F0);
+            uint16_t regX = getOperation(instruction, 0x0F00);
+            regX = regX >> 8;
+            uint16_t regY = getOperation(instruction, 0x00F0);
+            regY = regY >> 4;
             if(registers[regX] == registers[regY]) pc += 2;
             break;
         }
@@ -175,13 +179,82 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             break;
         }
         case 0x8000:{
-            std::cout << "0x8000 not implemented: " << std::endl; 
+            //HERE
+            uint16_t regX = getOperation(instruction, 0x0F00);
+            regX = regX >> 8;
+            uint16_t regY = getOperation(instruction, 0x00F0);
+            regY = regY >> 4;
+            uint16_t op = getOperation(instruction, 0x000F);
+            switch(op){
+                case 0:{
+                    registers[regX] = registers[regY];
+                    break;
+                }
+
+                case 1:{
+                    registers[regX] = registers[regX] | registers[regY];
+                    break;
+                }
+
+                case 2:{
+                    registers[regX] = registers[regX] & registers[regY];
+                    break;
+                }
+
+                case 3:{
+                    registers[regX] = registers[regX] ^ registers[regY];
+                    break;
+                }
+
+                case 4:{
+                    uint16_t result = registers[regX] + registers[regY];
+                    registers[regX] = result;
+                    if(result > 255) registers[15] = 1;
+                    else registers[15] = 0;
+                    break;
+                }
+
+                case 5:{
+                    if(registers[regX] >= registers[regY]) registers[15] = 1;
+                    else registers[15] = 0;
+                    uint16_t result = registers[regX] - registers[regY];
+                    registers[regX] = result;
+
+                    break;
+                }
+                case 6:{//shift
+                    //registers[regX] = registers[regY]; optional, some implementations don't consider this
+                    //shift right and capture shifted bit
+                    uint8_t mask = 0b00000001;
+                    uint8_t shiftedOutBit = registers[regX] & mask;
+                    registers[regX] = registers[regX] >> 1;
+                    registers[15] = shiftedOutBit;
+                    break;
+                }
+                case 7:{
+                    if(registers[regY] >= registers[regX]) registers[15] = 1;
+                    else registers[15] = 0;
+                    uint16_t result = registers[regY] - registers[regX];
+                    registers[regX] = result;
+                    break;
+                }
+                case 0xE:{//left
+                    //registers[regX] = registers[regY]; optional, some implementations don't consider this
+                    //left right and capture shifted bit
+                    uint8_t mask = 0b10000000;
+                    uint8_t shiftedOutBit = registers[regX] & mask;
+                    registers[regX] = registers[regX] << 1;
+                    registers[15] = shiftedOutBit;
+                    break;
+                }
+            }
             break;
         }
         case 0x9000:{
-            std::cout << "0x9000 not implemented: " << std::endl;
             uint8_t regX = getOperation(instruction, 0x0F00);
+            regX = regX >> 8;
             uint8_t regY = getOperation(instruction, 0x00F0);
+            regY = regY >> 4;
             if(registers[regX] != registers[regY]) pc += 2;
             break;
         }
@@ -191,12 +264,19 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             iReg = value;
             break;
         }
-        case 0xB000:{
-            std::cout << "0xB000 not implemented: " << std::endl;
+        case 0xB000:{//jumps to address NNN plus the value in V0
+            uint16_t address = getOperation(instruction, 0x0FFF);
+            pc = registers[0];
+            pc += address;
+            return false;
             break;
         }
         case 0xC000:{
-            std::cout << "0xC000 not implemented: " << std::endl;
+            uint8_t regX = getOperation(instruction, 0x0F00);
+            regX = regX >> 8;
+            uint8_t constant = getOperation(instruction, 0x00FF);
+            uint8_t randNumber = rand();
+            registers[regX] = randNumber & constant;
             break;
         }
         case 0xD000:{
