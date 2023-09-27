@@ -33,14 +33,14 @@ Chip8::Chip8(std::string programPath){
 
     //Subroutine stating at 0x0400 that loads 10 to register V0 and adds 15 to it
     //than it returns
-    
+    /*
     ram[0x0400] = 0x60;
     ram[0x0401] = 0x10;
     ram[0x0402] = 0x70;
     ram[0x0403] = 0x15;
     ram[0x0404] = 0x00;
     ram[0x0405] = 0xEE;
-    
+    */
     stack = new Stack();
     display = new Display();
     initializeFontSprites();
@@ -139,15 +139,23 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             break;
         }
         case 0x3000:{
-            std::cout << "0x3000 not implemented: " << std::endl; 
+            //3XNN v[x] == NN ? (skip next instruction: dont skip)
+            uint8_t reg = getOperation(instruction, 0x0F00);
+            uint8_t constant = getOperation(instruction, 0x00FF);
+            if(registers[reg] == constant) pc += 2;
             break;
         }
         case 0x4000:{
-            std::cout << "0x4000 not implemented: " << std::endl; 
+            //4XNN v[x] != NN ? (skip next instruction: dont skip)
+            uint8_t reg = getOperation(instruction, 0x0F00);
+            uint8_t constant = getOperation(instruction, 0x00FF);
+            if(registers[reg] != constant) pc += 2;
             break;
         }
         case 0x5000:{
-            std::cout << "0x5000 not implemented: " << std::endl; 
+            uint8_t regX = getOperation(instruction, 0x0F00);
+            uint8_t regY = getOperation(instruction, 0x00F0);
+            if(registers[regX] == registers[regY]) pc += 2;
             break;
         }
         case 0x6000:{
@@ -171,7 +179,10 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             break;
         }
         case 0x9000:{
-            std::cout << "0x9000 not implemented: " << std::endl; 
+            std::cout << "0x9000 not implemented: " << std::endl;
+            uint8_t regX = getOperation(instruction, 0x0F00);
+            uint8_t regY = getOperation(instruction, 0x00F0);
+            if(registers[regX] != registers[regY]) pc += 2;
             break;
         }
         case 0xA000:{
@@ -203,13 +214,12 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
 
             for(int i = 0; i < height; i++){
                 bool inverted = display->setByteInScreen(ram[iRegStartValue], xPos, yPos);
-                //std::cout << "Collision (bit got inverted):" << inverted << std::endl;
                 if(inverted == true) registers[15] = 1;
                 yPos += 1;
                 iRegStartValue += 1;
             }
-            //std::cout << "\n";
-            
+            std::cout << "\n";
+            display->print();
             break;
         }
         case 0xE000:{
@@ -226,8 +236,8 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
 void Chip8::run(){
     uint16_t instruction;
 
-    int i = 7;//debug
-    while(i != 0){//debug
+    //int i = 7;//debug
+    while(1){//debug
         //std::cout << "Current PC value: " << std::hex << pc;
         //std::cout << "\n";
         //fetch with big endian convention
@@ -238,17 +248,8 @@ void Chip8::run(){
         bool canIncrementPc = decodeAndExecute(instruction);
         //some instructions (like JUMPS) don't need to increment PC immediatly after jumping
         (canIncrementPc == true) ?  pc += 2 : pc += 0;
-        i--;//debug
+        //i--;//debug
         //if(i == 0) display->print();
-        if(pc == 0x0204){
-            std::cout << "PC at 0x0204" << std::endl;
-            std::cout << "Value of V0: " << unsigned(registers[0]);
-            std::cout << "\n";
-        } else if(pc == 0x0208){
-            std::cout << "PC at 0x0208 after jumping to subroutine in 0x0400" << std::endl;
-            std::cout << "Value of V0: " << unsigned(registers[0]);
-            std::cout << "\n";
-        }
         
     }
 }

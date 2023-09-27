@@ -11,7 +11,7 @@
 int main(int argc, char *argv[] ){
     //std::cout << "Chip 8 Emulator" << std::endl;
     
-    Chip8 *chip = new Chip8("C:\\Users\\carlo\\Desktop\\chip_8_emulator\\roms\\jump_to_subroutine.ch8");
+    Chip8 *chip = new Chip8("C:\\Users\\carlo\\Desktop\\chip_8_emulator\\roms\\ibm.ch8");
     chip->run();
     /*
     SDL_Init(SDL_INIT_VIDEO);
