@@ -1,7 +1,6 @@
 #include "Chip8.h"
 
 
-
 Chip8::Chip8(std::string programPath){
     //addresses 0x000 to 0x1FF are reserved
     //programs are written after 0x1FF
@@ -327,20 +326,20 @@ void Chip8::run(){
     uint16_t instruction;
     //int i = 7;//debug
     while(pc <= 4096){//debug
-        //std::cout << "Current PC value: " << std::hex << pc;
-        //std::cout << "\n";
-        //fetch with big endian convention
-        //each instruction is 2 bytes, the first byte is stored most-significant-byte first
-        instruction = ram[pc] << 8;
-        instruction += ram[pc+1];
-        //decode and execute
-        bool canIncrementPc = decodeAndExecute(instruction);
-        //some instructions (like JUMPS) don't need to increment PC immediatly after jumping
-        (canIncrementPc == true) ?  pc += 2 : pc += 0;
-        //i--;//debug
-        //if(i == 0) display->print();
-        //Sleep(75);
-        Sleep(70);
+        uint16_t timeBeforeFrame = SDL_GetPerformanceCounter();
+        for(uint64_t i = 0; i < INSTRUCTIONS_PER_SECOND / 60; i++){
+            //fetch with big endian convention
+            //each instruction is 2 bytes, the first byte is stored most-significant-byte first
+            instruction = ram[pc] << 8;
+            instruction += ram[pc+1];
+            //decode and execute
+            bool canIncrementPc = decodeAndExecute(instruction);
+            //some instructions (like JUMPS) don't need to increment PC immediatly after jumping
+            (canIncrementPc == true) ?  pc += 2 : pc += 0;
+        }
+        uint16_t timeAfterFrame = SDL_GetPerformanceCounter();
+        const double elapsedTime = (double) ((timeAfterFrame - timeBeforeFrame) / 1000) / SDL_GetPerformanceFrequency();
+        SDL_Delay(16.67f > elapsedTime ? 16.67f - elapsedTime : 0);
         SDL_PollEvent(&event);
         if(event.type == SDL_QUIT) break;
     }
