@@ -7,6 +7,15 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 640
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 class Chip8{
     private:
         //memory of 4 KB
@@ -37,8 +46,14 @@ class Chip8{
         //the "i" register fetches sprite data
         void initializeFontSprites();
         void readProgram(std::string programPath);
+
+        SDL_Window *window;
+        SDL_Renderer *renderer;
+        SDL_Texture *tex;
+        SDL_Event event;
     public:
         Chip8(std::string path);
+        ~Chip8();
         uint16_t getPc();
         //returns true if PC must be incremented
         //as some instructions JUMPS

@@ -41,8 +41,17 @@ Chip8::Chip8(std::string programPath){
     ram[0x0404] = 0x00;
     ram[0x0405] = 0xEE;
     */
+    SDL_Init(SDL_INIT_VIDEO);
+    window = SDL_CreateWindow("Chip 8 Emulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+    renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
+    SDL_RenderSetLogicalSize(renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
+    tex = SDL_CreateTexture(renderer, 
+                            SDL_PIXELFORMAT_ARGB8888, 
+                            SDL_TEXTUREACCESS_STREAMING,
+                            TEX_WIDTH,
+                            TEX_HEIGHT);
     stack = new Stack();
-    display = new Display();
+    display = new Display(renderer, tex);
     initializeFontSprites();
     readProgram(programPath);
 }
@@ -256,6 +265,7 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             uint8_t regY = getOperation(instruction, 0x00F0);
             regY = regY >> 4;
             if(registers[regX] != registers[regY]) pc += 2;
+            return false;
             break;
         }
         case 0xA000:{
@@ -298,7 +308,6 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
                 yPos += 1;
                 iRegStartValue += 1;
             }
-            std::cout << "\n";
             display->print();
             break;
         }
@@ -313,11 +322,11 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
     }
     return true;
 }
+
 void Chip8::run(){
     uint16_t instruction;
-
     //int i = 7;//debug
-    while(1){//debug
+    while(pc <= 4096){//debug
         //std::cout << "Current PC value: " << std::hex << pc;
         //std::cout << "\n";
         //fetch with big endian convention
@@ -330,6 +339,17 @@ void Chip8::run(){
         (canIncrementPc == true) ?  pc += 2 : pc += 0;
         //i--;//debug
         //if(i == 0) display->print();
-        
+        //Sleep(75);
+        Sleep(70);
+        SDL_PollEvent(&event);
+        if(event.type == SDL_QUIT) break;
     }
+    std::cout << "End" << std::endl;
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
+
+Chip8::~Chip8(){
+
 }

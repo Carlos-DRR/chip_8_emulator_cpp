@@ -1,7 +1,8 @@
 #include "Display.h"
 
-Display::Display(){
-
+Display::Display(SDL_Renderer *renderer, SDL_Texture *tex){
+    this->renderer = renderer;
+    this->tex = tex;
 }
 void Display::clear(){
     for(int i = 0; i < HEIGHT; i++){
@@ -9,6 +10,13 @@ void Display::clear(){
             screen[i][j] == false;
         }
     }
+    uint32_t pixels[TEX_WIDTH * TEX_HEIGHT]{0};
+
+    SDL_UpdateTexture(tex, NULL, pixels, 64 * sizeof(Uint32));
+    // Clear screen and render
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, tex, NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
 
 bool * Display::getScreen(){
@@ -87,13 +95,29 @@ bool Display::setByteInScreen(uint8_t byte, int horizontalPosition, int vertical
 
 
 void Display::print(){
-    system("cls");
-    std::cout << "\n";
+    //system("cls");
+    //std::cout << "\n";
+    uint32_t pixels[TEX_WIDTH * TEX_HEIGHT]{0};
+    int pixelIndex = 0;
     for(int i = 0; i < HEIGHT; i++){
         for(int j = 0; j < WIDTH; j++){
-            std::cout << ((screen[i][j] == true) ? 'O' : '.') << " ";
+            //std::cout << ((screen[i][j] == true) ? 'O' : '.') << " ";
+            if(screen[i][j] == true) pixels[pixelIndex] = 255;
+            else pixels[pixelIndex] = 0;
+            pixelIndex++;
         }
-        std::cout << "\n";
+        //std::cout << "\n";
     }
 
+    //Every value in the pixels array represents a color
+    //where 0 is transparent and 255 blue
+    //pixels = raw information about every pixel on the screen,
+    //starting from the top left corner to the bottom right corner
+    //position 0 in the array is the top left corner and the last position
+    //in the array means bottom right corner
+    SDL_UpdateTexture(tex, NULL, pixels, 64 * sizeof(Uint32));
+    // Clear screen and render
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, tex, NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
