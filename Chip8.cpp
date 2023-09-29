@@ -315,13 +315,62 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             break;
         }
         case 0xF000:{
-            std::cout << "0xF000 not implemented: " << std::endl;
+            uint8_t op = getOperation(instruction, 0x00FF);
+            std::cout << "0xF000 not completely implemented: " << std::endl;
+            switch(op){
+                case 0x0007:{
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    registers[reg] = delayTimer;
+                    break;
+                }
+                case 0x0015:{
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    delayTimer = registers[reg];
+                    break;
+                }
+                case 0x0018:{
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    soundTimer = registers[reg];   
+                    break;
+                }
+                case 0x001E:{
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    //max value for iReg is 0x0FFF because it's pointing to memory locations
+                    //the maximum memory address is 4095 = 2 ^ 12 = 0x0FFF
+                    iReg += registers[reg];
+                    //if it overflows the possible addresses VF is set to 1
+                    if(iReg > 0x0FFF) registers[15] = 1; 
+                    break;
+                }
+
+                case 0x000A:{
+                    std::cout << "0x000A not implemented: " << std::endl;
+                    //while a key is not pressed, the program should wait
+                    //for the key to be pressed. This could be done by not incrementing PC
+                    //until a key is pressed.
+                    //if (key == not pressed) return false;
+                    //else{
+                    //  ...
+                    //  ...     
+                    //  return true;
+                    //}
+                    break;
+                }
+            }
+
             break;
         }
     }
     return true;
 }
-
+void Chip8::updateTimers(){
+    if(delayTimer > 0) delayTimer--;
+    if(soundTimer > 0) soundTimer--;
+}
 void Chip8::run(){
     uint16_t instruction;
     //int i = 7;//debug
@@ -342,6 +391,7 @@ void Chip8::run(){
         SDL_Delay(16.67f > elapsedTime ? 16.67f - elapsedTime : 0);
         SDL_PollEvent(&event);
         if(event.type == SDL_QUIT) break;
+        updateTimers();
     }
     std::cout << "End" << std::endl;
     SDL_DestroyRenderer(renderer);

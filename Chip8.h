@@ -32,7 +32,10 @@ class Chip8{
         uint8_t delayTimer = 0x00;
         uint8_t soundTimer = 0x00;
         Stack *stack;
-
+        SDL_Window *window;
+        SDL_Renderer *renderer;
+        SDL_Texture *tex;
+        SDL_Event event;
         Display *display;
         //chip8 has a built in font sprite data, and stores it in memory
         //the sprites are numbers from 0 to 16 in hex: 0, 1, 2, .., F
@@ -46,11 +49,8 @@ class Chip8{
         //the "i" register fetches sprite data
         void initializeFontSprites();
         void readProgram(std::string programPath);
+        void updateTimers();
 
-        SDL_Window *window;
-        SDL_Renderer *renderer;
-        SDL_Texture *tex;
-        SDL_Event event;
     public:
         Chip8(std::string path);
         ~Chip8();
@@ -59,6 +59,7 @@ class Chip8{
         //as some instructions JUMPS
         bool decodeAndExecute(uint16_t instruction);
         void run();
+        
 
 };
 
