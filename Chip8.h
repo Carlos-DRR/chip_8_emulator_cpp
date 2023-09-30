@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <bitset>
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 640
 #define INSTRUCTIONS_PER_SECOND 500
@@ -27,7 +28,7 @@ class Chip8{
         //stack pointer
         uint8_t sp = 0x00;
         //registers
-        uint8_t registers[16]{};
+        uint8_t registers[16]{0};
         //special registers that gets decremented at a rate of 60Hz until it reaches 0
         uint8_t delayTimer = 0x00;
         uint8_t soundTimer = 0x00;
@@ -50,6 +51,7 @@ class Chip8{
         void initializeFontSprites();
         void readProgram(std::string programPath);
         void updateTimers();
+        uint8_t getKey();
 
     public:
         Chip8(std::string path);

@@ -1,0 +1,3 @@
+Fx55
+Fx33
+Fx65 // talvez esteja certo, test opcode 1 nao acusa

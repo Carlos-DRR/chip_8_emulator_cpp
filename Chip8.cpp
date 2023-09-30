@@ -101,9 +101,12 @@ void Chip8::initializeFontSprites(){
         0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
-
+    //0x50 + (0x00 * 5) = 0x00
+    //0x50 + (0x01 * 5) = 0x05
+    //0x50 + (0x02 * 5) = 0x0A
+    //iReg = memAddStart + (charHex * 5)
     //most people stores font sprite data between 0x50 and 0x9F in RAM
-    for(int i = 0x50; i < 0xA0; i++){
+    for(int i = 0x050; i <= 0x09F; i++){
         ram[i] = spriteData[spriteByteIndex];
         spriteByteIndex++;
     }
@@ -120,7 +123,7 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
         case 0x0000:{
             uint16_t operation = getOperation(instruction, 0x000F);
             if(operation == 0x0000){//0x00E0
-                //clear the screen
+                std::cout << "clearing screen"<< std::endl;
                 display->clear();
             }else{//0x00EE
                 //return from subroutine
@@ -193,28 +196,29 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             uint16_t regY = getOperation(instruction, 0x00F0);
             regY = regY >> 4;
             uint16_t op = getOperation(instruction, 0x000F);
+
             switch(op){
-                case 0:{
+                case 0x0000:{
                     registers[regX] = registers[regY];
                     break;
                 }
 
-                case 1:{
+                case 0x0001:{
                     registers[regX] = registers[regX] | registers[regY];
                     break;
                 }
 
-                case 2:{
+                case 0x0002:{
                     registers[regX] = registers[regX] & registers[regY];
                     break;
                 }
 
-                case 3:{
+                case 0x0003:{
                     registers[regX] = registers[regX] ^ registers[regY];
                     break;
                 }
 
-                case 4:{
+                case 0x0004:{
                     uint16_t result = registers[regX] + registers[regY];
                     registers[regX] = result;
                     if(result > 255) registers[15] = 1;
@@ -222,7 +226,7 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
                     break;
                 }
 
-                case 5:{
+                case 0x0005:{
                     if(registers[regX] >= registers[regY]) registers[15] = 1;
                     else registers[15] = 0;
                     uint16_t result = registers[regX] - registers[regY];
@@ -230,7 +234,7 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
 
                     break;
                 }
-                case 6:{//shift
+                case 0x0006:{//shift
                     //registers[regX] = registers[regY]; optional, some implementations don't consider this
                     //shift right and capture shifted bit
                     uint8_t mask = 0b00000001;
@@ -239,7 +243,7 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
                     registers[15] = shiftedOutBit;
                     break;
                 }
-                case 7:{
+                case 0x0007:{
                     if(registers[regY] >= registers[regX]) registers[15] = 1;
                     else registers[15] = 0;
                     uint16_t result = registers[regY] - registers[regX];
@@ -303,7 +307,7 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
 
             for(int i = 0; i < height; i++){
                 bool inverted = display->setByteInScreen(ram[iRegStartValue], xPos, yPos);
-                if(inverted == true) registers[15] = 1;
+                if(inverted == true) registers[15] = 1; //change this
                 yPos += 1;
                 iRegStartValue += 1;
             }
@@ -311,12 +315,29 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             break;
         }
         case 0xE000:{
-            std::cout << "0xE000 not implemented: " << std::endl;
+            uint16_t op = getOperation(instruction, 0x00FF);
+            switch(op){
+                case 0x009E:{
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    uint8_t value = registers[reg];
+                    if(value == getKey()) pc += 2;
+                    break;
+                }
+                case 0x00A1:{
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    uint8_t value = registers[reg];
+                    if(value != getKey()) pc += 2;
+                    break;
+                }
+                
+            }
             break;
         }
         case 0xF000:{
-            uint8_t op = getOperation(instruction, 0x00FF);
-            std::cout << "0xF000 not completely implemented: " << std::endl;
+            uint16_t op = getOperation(instruction, 0x00FF);
+            //std::cout << "0xF000 not completely implemented: " << std::endl;
             switch(op){
                 case 0x0007:{
                     uint16_t reg = getOperation(instruction, 0x0F00);
@@ -343,21 +364,61 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
                     //the maximum memory address is 4095 = 2 ^ 12 = 0x0FFF
                     iReg += registers[reg];
                     //if it overflows the possible addresses VF is set to 1
-                    if(iReg > 0x0FFF) registers[15] = 1; 
+                    if(iReg > 0xFFF) registers[0xF] = 1;
+                    else registers[0xF] = 0;
                     break;
                 }
 
                 case 0x000A:{
-                    std::cout << "0x000A not implemented: " << std::endl;
+                    //std::cout << "0xFX0A done: " << std::endl;
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
                     //while a key is not pressed, the program should wait
                     //for the key to be pressed. This could be done by not incrementing PC
                     //until a key is pressed.
-                    //if (key == not pressed) return false;
-                    //else{
-                    //  ...
-                    //  ...     
-                    //  return true;
-                    //}
+                    uint8_t key = getKey();
+                    if(key != -1){
+                        registers[reg] = key;
+                        return true;
+                    }else return false;
+                    break;
+                }
+                case 0x0029:{
+                    //std::cout << "0xFX29 done: " << std::endl;
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    uint8_t initialSpritesAddress = 0x50;
+                    uint8_t spriteHeight = 0x05;
+                    //iReg = memAddStart + (charHex * 5)
+                    iReg = initialSpritesAddress + (registers[reg] * spriteHeight);
+                    break;
+                }
+                case 0x0033:{ 
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    uint8_t regValue = registers[reg];
+                    //assuming that Vx holds up to 3 digits 0 - 
+                    ram[iReg] = regValue / 100;
+                    ram[iReg + 1] = (regValue / 10) % 10;
+                    ram[iReg + 2] = regValue % 10;
+                    break;
+                }
+                case 0x0055:{
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    for(int i = 0; i <= reg; i++){
+                        ram[iReg + i] = registers[i];
+                    }
+                    
+                    break;
+                }
+                case 0x0065:{
+                    uint16_t reg = getOperation(instruction, 0x0F00);
+                    reg = reg >> 8;
+                    for(int i = 0; i <= reg; i++){
+                        registers[i] = ram[iReg + i];
+                    }
+                    
                     break;
                 }
             }
@@ -366,6 +427,43 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
         }
     }
     return true;
+}
+
+uint8_t Chip8::getKey(){
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    if (state[SDL_SCANCODE_1]){
+        return 0x0;
+    }else if (state[SDL_SCANCODE_2]){
+        return 0x1;
+    }else if (state[SDL_SCANCODE_3]){
+        return 0x2;
+    }else if (state[SDL_SCANCODE_4]){
+        return 0x3;
+    }else if (state[SDL_SCANCODE_Q]){
+        return 0x4;
+    }else if (state[SDL_SCANCODE_W]){
+        return 0x5;
+    }else if (state[SDL_SCANCODE_E]){
+        return 0x6;
+    }else if (state[SDL_SCANCODE_R]){
+        return 0x7;
+    }else if (state[SDL_SCANCODE_A]){
+        return 0x8;
+    }else if (state[SDL_SCANCODE_S]){
+        return 0x9;
+    }else if (state[SDL_SCANCODE_D]){
+        return 0xA;
+    }else if (state[SDL_SCANCODE_F]){
+        return 0xB;
+    }else if (state[SDL_SCANCODE_Z]){
+        return 0xC;
+    }else if (state[SDL_SCANCODE_X]){
+        return 0xD;
+    }else if (state[SDL_SCANCODE_C]){
+        return 0xE;
+    }else if (state[SDL_SCANCODE_V]){
+        return 0xF;
+    }else return -1;
 }
 void Chip8::updateTimers(){
     if(delayTimer > 0) delayTimer--;
