@@ -7,11 +7,11 @@ Display::Display(SDL_Renderer *renderer, SDL_Texture *tex){
 void Display::clear(){
     for(int i = 0; i < HEIGHT; i++){
         for(int j = 0; j < WIDTH; j++){
-            screen[i][j] == false;
+            screen[i][j] = false;
         }
     }
-    uint32_t pixels[TEX_WIDTH * TEX_HEIGHT]{0};
-
+    Uint32 pixels[TEX_WIDTH * TEX_HEIGHT]{0};
+    
     SDL_UpdateTexture(tex, NULL, pixels, 64 * sizeof(Uint32));
     // Clear screen and render
     SDL_RenderClear(renderer);
@@ -97,7 +97,7 @@ bool Display::setByteInScreen(uint8_t byte, int horizontalPosition, int vertical
 void Display::print(){
     //system("cls");
     //std::cout << "\n";
-    uint32_t pixels[TEX_WIDTH * TEX_HEIGHT]{0};
+    Uint32 pixels[TEX_WIDTH * TEX_HEIGHT]{0};
     int pixelIndex = 0;
     for(int i = 0; i < HEIGHT; i++){
         for(int j = 0; j < WIDTH; j++){

@@ -33,3 +33,5 @@
 
 # Extras
 *.png
+# Roms
+roms/

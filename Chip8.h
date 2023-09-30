@@ -10,7 +10,7 @@
 #include <bitset>
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 640
-#define INSTRUCTIONS_PER_SECOND 500
+#define INSTRUCTIONS_PER_SECOND 700
 #ifdef _WIN32
 #include <windows.h>
 #else

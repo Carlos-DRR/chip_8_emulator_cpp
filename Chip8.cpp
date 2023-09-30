@@ -123,7 +123,6 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
         case 0x0000:{
             uint16_t operation = getOperation(instruction, 0x000F);
             if(operation == 0x0000){//0x00E0
-                std::cout << "clearing screen"<< std::endl;
                 display->clear();
             }else{//0x00EE
                 //return from subroutine
@@ -491,7 +490,6 @@ void Chip8::run(){
         if(event.type == SDL_QUIT) break;
         updateTimers();
     }
-    std::cout << "End" << std::endl;
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
