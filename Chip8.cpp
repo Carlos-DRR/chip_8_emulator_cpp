@@ -5,6 +5,7 @@ Chip8::Chip8(std::string programPath){
     //addresses 0x000 to 0x1FF are reserved
     //programs are written after 0x1FF
     //so program counter starts at 0x200 (512)
+    srand(time(NULL));
     pc = 0x0200;
     /*
     //test
@@ -226,34 +227,31 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
                 }
 
                 case 0x0005:{
-                    if(registers[regX] >= registers[regY]) registers[15] = 1;
+                    uint8_t x = registers[regX];
+                    uint8_t y = registers[regY];                    
+                    registers[regX] -= registers[regY];
+                    if(x > y) registers[15] = 1;
                     else registers[15] = 0;
-                    uint16_t result = registers[regX] - registers[regY];
-                    registers[regX] = result;
-
                     break;
                 }
-                case 0x0006:{//shift
-                    //registers[regX] = registers[regY]; optional, some implementations don't consider this
-                    //shift right and capture shifted bit
+                case 0x0006:{
                     uint8_t mask = 0b00000001;
                     uint8_t shiftedOutBit = registers[regX] & mask;
                     registers[regX] = registers[regX] >> 1;
                     registers[15] = shiftedOutBit;
+                    
                     break;
                 }
-                case 0x0007:{
-                    if(registers[regY] >= registers[regX]) registers[15] = 1;
+                case 0x0007:{                   
+                    uint8_t x = registers[regX];
+                    uint8_t y = registers[regY];
+                    registers[regX] = registers[regY] - registers[regX];
+                    if(y  > x) registers[15] = 1;
                     else registers[15] = 0;
-                    uint16_t result = registers[regY] - registers[regX];
-                    registers[regX] = result;
                     break;
                 }
-                case 0xE:{//left
-                    //registers[regX] = registers[regY]; optional, some implementations don't consider this
-                    //left right and capture shifted bit
-                    uint8_t mask = 0b10000000;
-                    uint8_t shiftedOutBit = registers[regX] & mask;
+                case 0x000E:{//left
+                    uint8_t shiftedOutBit = registers[regX] >> 7;
                     registers[regX] = registers[regX] << 1;
                     registers[15] = shiftedOutBit;
                     break;
@@ -262,12 +260,12 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             break;
         }
         case 0x9000:{
-            uint8_t regX = getOperation(instruction, 0x0F00);
+            uint16_t regX = getOperation(instruction, 0x0F00);
             regX = regX >> 8;
             uint8_t regY = getOperation(instruction, 0x00F0);
             regY = regY >> 4;
-            if(registers[regX] != registers[regY]) pc += 2;
-            return false;
+            if(registers[regX] != registers[regY])pc += 2;
+            return true;
             break;
         }
         case 0xA000:{
@@ -284,10 +282,10 @@ bool Chip8::decodeAndExecute(uint16_t instruction){
             break;
         }
         case 0xC000:{
-            uint8_t regX = getOperation(instruction, 0x0F00);
+            uint16_t regX = getOperation(instruction, 0x0F00);
             regX = regX >> 8;
             uint8_t constant = getOperation(instruction, 0x00FF);
-            uint8_t randNumber = rand();
+            uint8_t randNumber = (rand() % 256);
             registers[regX] = randNumber & constant;
             break;
         }

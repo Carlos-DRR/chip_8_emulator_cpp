@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <bitset>
+#include "time.h"
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 640
 #define INSTRUCTIONS_PER_SECOND 700
