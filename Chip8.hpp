@@ -39,6 +39,8 @@ class Chip8{
         SDL_Texture *tex;
         SDL_Event event;
         Display *display;
+        SDL_AudioSpec want, have;
+        SDL_AudioDeviceID dev;
         //chip8 has a built in font sprite data, and stores it in memory
         //the sprites are numbers from 0 to 16 in hex: 0, 1, 2, .., F
         //each character is represented in 5 bytes

@@ -1,5 +1,20 @@
 #include "Chip8.hpp"
 
+void audio_callback(void *userdata, uint8_t *stream, int len) {
+    uint32_t square_wave_freq = 440; 
+    uint32_t audio_sample_rate = 44100; 
+    int16_t volume = 3000;            
+
+    int16_t *audio_data = (int16_t *)stream;
+    static uint32_t running_sample_index = 0;
+    const int32_t square_wave_period = audio_sample_rate / square_wave_freq;
+    const int32_t half_square_wave_period = square_wave_period / 2;
+
+    for (int i = 0; i < len / 2; i++)
+        audio_data[i] = ((running_sample_index++ / half_square_wave_period) % 2) ? 
+                        volume : 
+                        -volume;
+}
 Chip8::Chip8(std::string programPath){
     //addresses 0x000 to 0x1FF are reserved
     //programs are written after 0x1FF
@@ -40,7 +55,7 @@ Chip8::Chip8(std::string programPath){
     ram[0x0404] = 0x00;
     ram[0x0405] = 0xEE;
     */
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     window = SDL_CreateWindow("Chip 8 Emulator", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
     SDL_RenderSetLogicalSize(renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -49,6 +64,19 @@ Chip8::Chip8(std::string programPath){
                             SDL_TEXTUREACCESS_STREAMING,
                             TEX_WIDTH,
                             TEX_HEIGHT);
+
+    want.freq = 44100;
+    want.format = AUDIO_S16LSB;          
+    want.channels = 1;  
+    want.samples = 512;           
+    want.callback = audio_callback;
+    dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+    if(dev == 0) SDL_Log("Could not get an audio device %s\n", SDL_GetError());
+    if ((want.format != have.format) ||
+        (want.channels != have.channels)) {
+        SDL_Log("Could not get desired Audio Spec\n");
+    }
+
     stack = new Stack();
     display = new Display(renderer, tex);
     initializeFontSprites();
@@ -463,7 +491,12 @@ uint8_t Chip8::getKey(){
 }
 void Chip8::updateTimers(){
     if(delayTimer > 0) delayTimer--;
-    if(soundTimer > 0) soundTimer--;
+    if (soundTimer > 0) {
+        soundTimer--;
+        SDL_PauseAudioDevice(dev, 0); // Play sound
+    } else {
+        SDL_PauseAudioDevice(dev, 1); // Pause sound
+    }
 }
 void Chip8::run(){
     uint16_t instruction;
@@ -489,6 +522,7 @@ void Chip8::run(){
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    SDL_CloseAudioDevice(dev);
     SDL_Quit();
 }
 
