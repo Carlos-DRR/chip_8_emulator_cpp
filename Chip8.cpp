@@ -1,5 +1,4 @@
-#include "Chip8.h"
-
+#include "Chip8.hpp"
 
 Chip8::Chip8(std::string programPath){
     //addresses 0x000 to 0x1FF are reserved

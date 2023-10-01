@@ -1,7 +1,7 @@
-#ifndef CHIP8_H
-#define CHIP8_H
-#include "Stack.h"
-#include "Display.h"
+#ifndef CHIP8_HPP
+#define CHIP8_HPP
+#include "Stack.hpp"
+#include "Display.hpp"
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>

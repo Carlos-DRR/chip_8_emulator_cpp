@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "Node.hpp"
 
 template <class T>
 Node<T>::Node(T info){

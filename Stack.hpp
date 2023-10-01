@@ -1,6 +1,6 @@
-#ifndef STACK_H
-#define STACK_H
-#include "List.h"
+#ifndef STACK_HPP
+#define STACK_HPP
+#include "List.hpp"
 #include <cstdint>
 
 

@@ -1,11 +1,9 @@
 #include <iostream>
-#include "Chip8.h"
-//#include <stdio.h>
-//#include "Display.h"
+#include "Chip8.hpp"
 
 int main(int argc, char *argv[] ){
     
-    Chip8 *chip = new Chip8("C:\\Users\\carlo\\Desktop\\chip_8_emulator\\roms\\test_opcode2.ch8");
+    Chip8 *chip = new Chip8("C:\\Users\\carlo\\Desktop\\chip_8_emulator\\roms\\tetris.ch8");
     chip->run();
     system("pause");
     return 0;

@@ -1,4 +1,4 @@
-#include "Display.h"
+#include "Display.hpp"
 
 Display::Display(SDL_Renderer *renderer, SDL_Texture *tex){
     this->renderer = renderer;
